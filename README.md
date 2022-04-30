@@ -1,5 +1,5 @@
 # loja-virtual
-🎓 📚 ☕️ Projeto Loja Virtual do Curso Full Stack Development
+📚 ☕️ Projeto Loja Virtual do Curso Full Stack Development
 
 ### UX Design  ###
 
