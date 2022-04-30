@@ -1,13 +1,13 @@
 # loja-virtual
 🎓 📚 ☕️ Projeto Loja Virtual do Curso Full Stack Development
 
-### Database Diagram  ###
-
-![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/documentacao/diagrama-banco-dados.png)
-
 ### UX Design  ###
 
 ![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/documentacao/UX-Design.png)
+
+### Database Diagram  ###
+
+![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/documentacao/diagrama-banco-dados.png)
 
 ### Frameworks  ###
 
