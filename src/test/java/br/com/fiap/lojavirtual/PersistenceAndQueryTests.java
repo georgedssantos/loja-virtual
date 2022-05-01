@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import br.com.fiap.lojavirtual.business.KeepOrder;
 import br.com.fiap.lojavirtual.models.entitys.Customer;
@@ -21,12 +22,14 @@ import br.com.fiap.lojavirtual.models.entitys.OrderItem;
 import br.com.fiap.lojavirtual.models.entitys.Product;
 import br.com.fiap.lojavirtual.models.enums.Size;
 import br.com.fiap.lojavirtual.models.enums.Status;
+import br.com.fiap.lojavirtual.repositories.OrderItemRepository;
 import br.com.fiap.lojavirtual.services.CustomerService;
 import br.com.fiap.lojavirtual.services.OrderItemService;
 import br.com.fiap.lojavirtual.services.ProductService;
 
 @SpringBootTest
 @DisplayName("LOJA VIRTUAL TESTES DE PERSISTÊNCIA E CONSULTAS")
+@ActiveProfiles("local")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PersistenceAndQueryTests {
 		
@@ -41,6 +44,9 @@ class PersistenceAndQueryTests {
 	
 	@Autowired
 	private OrderItemService orderItemService;
+	
+	@Autowired
+	private OrderItemRepository orderItemRepository;
 
 	
     @BeforeEach
@@ -65,7 +71,8 @@ class PersistenceAndQueryTests {
 		this.productService.save(productBlack);
 		this.productService.save(productGreen);
 		// VALIDAÇÃO
-		this.productService.findAll().forEach(System.out::println);
+		assertThat(this.productService.findAll()).isNotNull();
+		//this.productService.findAll().forEach(System.out::println);
 	}
 
 	@Test
@@ -82,7 +89,6 @@ class PersistenceAndQueryTests {
 		customer = this.customerService.save(customer);
 		
 		// VALIDAÇÃO
-		System.out.println("CLIENTE "+ customer.getName());
 		assertThat(customer).isNotNull();
 		assertThat(customer.getIdCustomer()).isNotNull();
 	}
@@ -95,29 +101,22 @@ class PersistenceAndQueryTests {
 		// AÇÃO
 		br.com.fiap.lojavirtual.models.entitys.Order order = this.keepOrder.createOrderByCustomer(1l);
 	
-		// VALIDAÇÃO		
-		System.out.println("PEDIDO "+ order.getStatus());
-		System.out.println("CODIGO "+ order.getIdOrder());
-		System.out.println("DATA "+ order.getDate());
+		// VALIDAÇÃO
 		assertEquals(order.getStatus(), Status.CRIADO);
+		
 	}
 	
 	@Test
 	@Order(4)
 	@DisplayName("ADICIONAR PRODUTO NO PEDIDO")
-	public void cadastroDoItemDoPedidoComSucesso() {	
-		// CENÁRIO
-		this.productService.findAll().forEach(System.out::println);
-		
+	public void cadastroDoItemDoPedidoComSucesso() {			
     	// AÇÃO
     	this.keepOrder.addProductToOrder(1L, 1l);
     	this.keepOrder.addProductToOrder(1L, 2l);
     	this.keepOrder.addProductToOrder(1L, 3l);
-				
+			
 		// VALIDAÇÃO
-		this.orderItemService.findAll().forEach(product -> {
-			System.out.println("PRODUTO "+product.getProduct().getIdProduct()+ " ADICIONADO");
-		});
+		assertThat(this.orderItemService.findAll()).isNotNull();
 	}
 	
 	@Test
@@ -133,7 +132,7 @@ class PersistenceAndQueryTests {
 		
 		// VALIDAÇÃO
 		this.orderItemService.findAll().forEach(product -> {
-			System.out.println("PRODUTO "+product.getProduct().getIdProduct()+ " QTD "+ product.getQuantity());
+			assertEquals(product.getQuantity(), 2);
 		});
 	}
 	
@@ -142,16 +141,14 @@ class PersistenceAndQueryTests {
 	@DisplayName("REMOVER PRODUTO NO PEDIDO")
 	public void testarRetiradaDoProdutoNoPedidoComSucesso() {
 		// CENÁRIO
-		OrderItem orderItem = this.orderItemService.getOrderItemById(3L);
+		OrderItem orderItemFound = this.orderItemService.getOrderItemById(3L);
 		
 		// AÇÃO
-		this.keepOrder.removeProductToOrder(orderItem.getIdOrderItem());
+		this.keepOrder.removeProductToOrder(orderItemFound.getIdOrderItem());
 		
 		// VALIDAÇÃO
-		List<OrderItem> productList = this.orderItemService.findAll();
-		productList.forEach(product -> {
-			System.out.println("PRODUTO "+product.getProduct().getIdProduct()+ " QTD "+ product.getQuantity());
-		});
+		OrderItem orderItem = this.orderItemRepository.findById(3l).orElse(null);
+		assertEquals(Objects.isNull(orderItem), Boolean.TRUE);
 	}
 	
 	@Test
@@ -162,7 +159,7 @@ class PersistenceAndQueryTests {
 		br.com.fiap.lojavirtual.models.entitys.Order order = this.keepOrder.registerOrder(1l);
 		
 		// VALIDAÇÃO
-		System.out.println("PEDIDO "+ order.getStatus());
+		assertEquals(order.getStatus(), Status.CONFIRMADO);
 	}
 	
 }

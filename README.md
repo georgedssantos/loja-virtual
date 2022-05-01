@@ -9,14 +9,11 @@
 
 ![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/documentacao/diagrama-banco-dados.png)
 
-### Frameworks  ###
+### How do I get set up?  ###
 
 * Spring Boot Version 2.6.7
 * Java 11
 * Flyway
 * Unitary Tests (JUnit 5)
-
-### How do I get set up?  ###
-
 * Mysql database connection
-* Configure database in application.properties
+* Configure database in application.properties (spring.profiles.active) and application-[profile].properties
