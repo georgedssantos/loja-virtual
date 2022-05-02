@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -108,10 +107,10 @@ class PersistenceAndQueryTests {
 		order.setAmount(null);
 			
 		// AÇÃO
-		this.orderService.save(order);
+		br.com.fiap.lojavirtual.models.entitys.Order orderSave = this.orderService.save(order);
 	
 		// VALIDAÇÃO
-		assertEquals(order.getStatus(), Status.CRIADO);
+		assertEquals(orderSave.getStatus(), Status.CRIADO);
 		
 	}
 	
@@ -162,7 +161,7 @@ class PersistenceAndQueryTests {
 		
 		// VALIDAÇÃO
 		OrderItem orderItem = this.orderItemRepository.findById(3L).orElse(null);
-		assertEquals(Objects.isNull(orderItem), Boolean.TRUE);
+		assertThat(orderItem).isNull();
 	}
 	
 	@Test
