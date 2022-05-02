@@ -36,4 +36,14 @@ public class OrderItem {
 	@Column(name = "QUANTIDADE", nullable = false)
 	private Integer quantity;
 	
+	public OrderItem() {
+		
+	}
+	
+    public OrderItem(Product product, Order order, Integer quantity) {
+        this.product = product;
+        this.order = order;
+        this.quantity = quantity;
+    }
+	
 }

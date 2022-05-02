@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import br.com.fiap.lojavirtual.business.KeepOrder;
 import br.com.fiap.lojavirtual.models.entitys.Customer;
 import br.com.fiap.lojavirtual.models.entitys.OrderItem;
 import br.com.fiap.lojavirtual.models.entitys.Product;
@@ -25,6 +25,7 @@ import br.com.fiap.lojavirtual.models.enums.Status;
 import br.com.fiap.lojavirtual.repositories.OrderItemRepository;
 import br.com.fiap.lojavirtual.services.CustomerService;
 import br.com.fiap.lojavirtual.services.OrderItemService;
+import br.com.fiap.lojavirtual.services.OrderService;
 import br.com.fiap.lojavirtual.services.ProductService;
 
 @SpringBootTest
@@ -37,7 +38,7 @@ class PersistenceAndQueryTests {
 	private CustomerService customerService;
 	
 	@Autowired
-	private KeepOrder keepOrder;
+	private OrderService orderService;
 	
 	@Autowired
 	private ProductService productService;
@@ -97,9 +98,17 @@ class PersistenceAndQueryTests {
 	@Test
 	@Order(3)
 	@DisplayName("CRIAR PEDIDO")
-	public void testarCadastroDePedidoDoClienteComSucesso() {		
+	public void testarCadastroDePedidoDoClienteComSucesso() {
+		// CENÁRIO
+		br.com.fiap.lojavirtual.models.entitys.Order order = new br.com.fiap.lojavirtual.models.entitys.Order();
+		Customer customer = this.customerService.getCustomerById(1L);
+		order.setCustomer(customer);
+		order.setStatus(Status.CRIADO);
+		order.setDate(new Date());
+		order.setAmount(null);
+			
 		// AÇÃO
-		br.com.fiap.lojavirtual.models.entitys.Order order = this.keepOrder.createOrderByCustomer(1l);
+		this.orderService.save(order);
 	
 		// VALIDAÇÃO
 		assertEquals(order.getStatus(), Status.CRIADO);
@@ -108,32 +117,37 @@ class PersistenceAndQueryTests {
 	
 	@Test
 	@Order(4)
-	@DisplayName("ADICIONAR PRODUTO NO PEDIDO")
-	public void cadastroDoItemDoPedidoComSucesso() {			
-    	// AÇÃO
-    	this.keepOrder.addProductToOrder(1L, 1l);
-    	this.keepOrder.addProductToOrder(1L, 2l);
-    	this.keepOrder.addProductToOrder(1L, 3l);
-			
+	@DisplayName("ADICIONAR PRODUTO NO PEDIDO DO CLEINTE")
+	public void cadastroDoItemDoPedidoComSucesso() {	
+		// CENÁRIO		
+		br.com.fiap.lojavirtual.models.entitys.Order order = this.orderService.getOrderById(1L);
+		Product productWhite =this.productService.getProductById(1L);		
+		OrderItem orderItemProductWhite = new OrderItem(productWhite, order, 6);
+		
+		Product productBlue =this.productService.getProductById(1L);		
+		OrderItem orderItemProductBlue = new OrderItem(productBlue, order, 6);
+		
+    	// AÇÃO		
+		this.orderItemService.save(orderItemProductWhite);
+		this.orderItemService.save(orderItemProductBlue);
+					
 		// VALIDAÇÃO
 		assertThat(this.orderItemService.findAll()).isNotNull();
 	}
 	
 	@Test
 	@Order(5)
-	@DisplayName("ALTERAR A QTD DOS PRODUTOS ADICIONADOS")
+	@DisplayName("ALTERAR A QTD DO PRODUTO")
 	public void testarAlerarQtdDosProdutosAdicionadosComSucesso() {			
 		// CENÁRIO
-		this.orderItemService.findAll().forEach(orderItem -> {
-			// AÇÃO
-			orderItem.setQuantity(2);
-			this.keepOrder.updateProductOnOrder(orderItem);
-		});
+		OrderItem orderItemProductWhite = this.orderItemService.getOrderItemById(1L);
+		orderItemProductWhite.setQuantity(2);
+		
+		// AÇÃO
+		OrderItem OrderItemSave = this.orderItemService.save(orderItemProductWhite);
 		
 		// VALIDAÇÃO
-		this.orderItemService.findAll().forEach(product -> {
-			assertEquals(product.getQuantity(), 2);
-		});
+		assertEquals(OrderItemSave.getQuantity(), 2);
 	}
 	
 	@Test
@@ -144,22 +158,27 @@ class PersistenceAndQueryTests {
 		OrderItem orderItemFound = this.orderItemService.getOrderItemById(3L);
 		
 		// AÇÃO
-		this.keepOrder.removeProductToOrder(orderItemFound.getIdOrderItem());
+		this.orderItemService.delete(orderItemFound.getIdOrderItem());
 		
 		// VALIDAÇÃO
-		OrderItem orderItem = this.orderItemRepository.findById(3l).orElse(null);
+		OrderItem orderItem = this.orderItemRepository.findById(3L).orElse(null);
 		assertEquals(Objects.isNull(orderItem), Boolean.TRUE);
 	}
 	
 	@Test
 	@Order(7)
 	@DisplayName("COMPRAR")
-	public void testarCompraDosProdutosComSucesso() {			
+	public void testarCompraDosProdutosComSucesso() {
+		// CENÁRIO
+		br.com.fiap.lojavirtual.models.entitys.Order order = this.orderService.getOrderById(1L);
+		order.setStatus(Status.CONFIRMADO);
+		order.setDate(new Date());
+
 		// AÇÃO
-		br.com.fiap.lojavirtual.models.entitys.Order order = this.keepOrder.registerOrder(1l);
+		br.com.fiap.lojavirtual.models.entitys.Order orderUpdate = this.orderService.update(order);
 		
 		// VALIDAÇÃO
-		assertEquals(order.getStatus(), Status.CONFIRMADO);
+		assertEquals(orderUpdate.getStatus(), Status.CONFIRMADO);
 	}
 	
 }
