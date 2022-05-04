@@ -47,10 +47,11 @@ public class Product {
 	private Size size;
 	
 	public Product() {
-	
+		super();
 	}
 	
     public Product(String name, String description, byte[] photo, Integer quantity, BigDecimal price, Size size) {
+    	super();
         this.name = name;
         this.description = description;
         this.photo = photo;

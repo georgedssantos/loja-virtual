@@ -3,11 +3,11 @@
 
 ### UX Design  ###
 
-![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/documentacao/UX-Design.png)
+![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/docs/UX-Design.png)
 
 ### Database Diagram  ###
 
-![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/documentacao/diagrama-banco-dados.png)
+![alt tag](https://raw.githubusercontent.com/georgedssantos/loja-virtual/master/src/main/resources/docs/diagrama-banco-dados.png)
 
 ### Settings  ###
 

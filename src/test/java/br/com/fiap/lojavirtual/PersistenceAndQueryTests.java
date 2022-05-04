@@ -2,10 +2,13 @@ package br.com.fiap.lojavirtual;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -29,7 +32,7 @@ import br.com.fiap.lojavirtual.services.ProductService;
 
 @SpringBootTest
 @DisplayName("LOJA VIRTUAL TESTES DE PERSISTÊNCIA E CONSULTAS")
-@ActiveProfiles("local")
+@ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PersistenceAndQueryTests {
 		
@@ -70,8 +73,11 @@ class PersistenceAndQueryTests {
 		this.productService.save(productRed);
 		this.productService.save(productBlack);
 		this.productService.save(productGreen);
+		
 		// VALIDAÇÃO
-		assertThat(this.productService.findAll()).isNotNull();
+		this.productService.findAll().stream().map(Product::getIdProduct)
+			.forEach(Assertions::assertNotNull);
+				
 		//this.productService.findAll().forEach(System.out::println);
 	}
 
@@ -88,7 +94,11 @@ class PersistenceAndQueryTests {
 		// AÇÃO
 		customer = this.customerService.save(customer);
 		
-		// VALIDAÇÃO
+		// VALIDAÇÃO			
+	   this.customerService.findAll().stream()   
+	                .filter(client -> "SANTOS.S.GEORGE@GMAIL.COM".equals(client.getEmail()))  
+	                .forEach(Assertions::assertNotNull);
+		
 		assertThat(customer).isNotNull();
 		assertThat(customer.getIdCustomer()).isNotNull();
 	}
@@ -123,7 +133,7 @@ class PersistenceAndQueryTests {
 		Product productWhite =this.productService.getProductById(1L);		
 		OrderItem orderItemProductWhite = new OrderItem(productWhite, order, 6);
 		
-		Product productBlue =this.productService.getProductById(1L);		
+		Product productBlue =this.productService.getProductById(2L);		
 		OrderItem orderItemProductBlue = new OrderItem(productBlue, order, 6);
 		
     	// AÇÃO		
@@ -131,7 +141,21 @@ class PersistenceAndQueryTests {
 		this.orderItemService.save(orderItemProductBlue);
 					
 		// VALIDAÇÃO
-		assertThat(this.orderItemService.findAll()).isNotNull();
+		
+		List<OrderItem> orderItemlist = this.orderItemService.findAll();
+		
+		boolean isProductWhite = orderItemlist
+	                .stream()
+	                .filter(orderItem -> productWhite.getIdProduct() == orderItem.getProduct().getIdProduct())
+	                .findAny().isPresent();
+		
+		boolean isProductBlue = orderItemlist
+                .stream()
+                .filter(orderItem -> productBlue.getIdProduct() == orderItem.getProduct().getIdProduct())
+                .findAny().isPresent();
+		
+		assertTrue(isProductWhite);
+		assertTrue(isProductBlue);
 	}
 	
 	@Test
@@ -161,7 +185,13 @@ class PersistenceAndQueryTests {
 		
 		// VALIDAÇÃO
 		OrderItem orderItem = this.orderItemRepository.findById(3L).orElse(null);
+	
+		
+		OrderItem orderInList = this.orderItemRepository.findAll().stream().filter(item -> item.getIdOrderItem() == 3L)
+	       .findFirst().orElse(null);
+		
 		assertThat(orderItem).isNull();
+		assertThat(orderInList).isNull();
 	}
 	
 	@Test

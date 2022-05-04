@@ -37,10 +37,11 @@ public class OrderItem {
 	private Integer quantity;
 	
 	public OrderItem() {
-		
+		super();
 	}
 	
     public OrderItem(Product product, Order order, Integer quantity) {
+    	super();
         this.product = product;
         this.order = order;
         this.quantity = quantity;
